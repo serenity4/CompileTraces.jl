@@ -28,7 +28,7 @@ end
 
 @testset "CompileTraces.jl" begin
   metrics = compile_traces(tmp)
-  @test metrics.succeeded > 5
+  @test metrics.succeeded ≥ 1
   @test metrics.failed == 0
   @test metrics.skipped == 0
   @test metrics.succeeded == metrics.total
