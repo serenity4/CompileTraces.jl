@@ -1,6 +1,13 @@
 module CompileTraces
 
-export compile_traces
+export CompilationMetrics, compile_traces
+
+mutable struct CompilationMetrics
+  succeeded::Int64
+  failed::Int64
+end
+
+CompilationMetrics() = CompilationMetrics(0, 0)
 
 """
     compile_traces(trace_files::AbstractString...; verbose=true, progress=true, warn=true)
@@ -26,7 +33,9 @@ compile_traces(trace_files::AbstractString...; verbose=true, progress=true, warn
 # Credits to PackageCompiler.jl for most of the following code.
 
 function compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=true, progress=true, warn=true)
+  metrics = CompilationMetrics()
   ex = quote
+    metrics = $metrics
     using Base.Meta
     PrecompileStagingArea = Module()
     for (_pkgid, _mod) in Base.loaded_modules
@@ -41,8 +50,6 @@ function compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=t
         end
       end
     end
-    local n_succeeded = 0
-    local n_failed = 0
     statements = foldl((sts, file) -> append!(sts, eachline(file)), $trace_files; init=String[])
     $verbose && print("Executing precompile statements...")
     for statement in statements
@@ -67,18 +74,18 @@ function compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=t
         ms = length(ps) == 1 ? Base._methods_by_ftype(ps[1], 1, Base.get_world_counter()) : Base.methods(ps...)
         ms isa Vector || continue
         precompile(ps...)
-        n_succeeded += 1
+        metrics.succeeded += 1
         $progress || continue
-        print("\rExecuting precompile statements... $n_succeeded/$(length(statements))")
-        if !iszero(n_failed)
+        print("\rExecuting precompile statements... $(metrics.succeeded)/$(length(statements))")
+        if !iszero(metrics.failed)
           print(" (failed: ")
-          printstyled(n_failed; bold=true, color=:red)
+          printstyled(metrics.failed; bold=true, color=:red)
           print(')')
         end
       catch e
         # See julia issue #28808
         e isa InterruptException && rethrow()
-        n_failed += 1
+        metrics.failed += 1
         $warn || continue
         println()
         @warn "failed to execute $statement\n$(sprint(showerror, e))"
@@ -87,11 +94,11 @@ function compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=t
     if $verbose
       println()
       print("Successfully precompiled ")
-      printstyled(n_succeeded; bold=true, color=:green)
+      printstyled(metrics.succeeded; bold=true, color=:green)
       print(" statements")
-      if !iszero(n_failed)
+      if !iszero(metrics.failed)
         print(" (")
-        printstyled(n_failed; bold=true, color=:red)
+        printstyled(metrics.failed; bold=true, color=:red)
         print(" failed)")
       end
       println()
@@ -99,6 +106,7 @@ function compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=t
   end
 
   Core.eval(Module(), ex)
+  metrics
 end
 
 end
