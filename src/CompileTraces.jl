@@ -23,7 +23,7 @@ end
 CompilationMetrics() = CompilationMetrics(0, 0, 0, 0)
 
 function Base.show(io::IO, metrics::CompilationMetrics)
-  print(io, CompilationMetrics, '(', "total: ", metrics.total, ", succeded: ", metrics.succeeded, ", failed: ", metrics.failed, ", skipped: ", metrics.skipped, ')')
+  print(io, CompilationMetrics, '(', "total: ", metrics.total, ", succeeded: ", metrics.succeeded, ", failed: ", metrics.failed, ", skipped: ", metrics.skipped, ')')
 end
 
 """
