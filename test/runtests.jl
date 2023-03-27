@@ -30,6 +30,8 @@ end
   metrics = compile_traces(tmp)
   @test metrics.succeeded > 5
   @test metrics.failed == 0
+  @test metrics.skipped == 0
+  @test metrics.succeeded == metrics.total
   captured = capture_stdout(() -> compile_traces(tmp; verbose=false))
   @test contains(captured, "Executing precompile statements...") && !contains(captured, "Successfully precompiled")
   captured = capture_stdout(() -> compile_traces(tmp; progress=false))
