@@ -1,0 +1,13 @@
+name = "CompileTraces"
+uuid = "92d184ee-bd0d-43d0-b768-a20943f3d1e3"
+authors = ["Cédric BELMANT"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.7"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
