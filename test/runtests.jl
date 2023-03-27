@@ -32,6 +32,7 @@ end
   @test metrics.failed == 0
   @test metrics.skipped == 0
   @test metrics.succeeded == metrics.total
+  @test isa(repr(metrics), String)
   captured = capture_stdout(() -> compile_traces(tmp; verbose=false))
   @test contains(captured, "Executing precompile statements...") && !contains(captured, "Successfully precompiled")
   captured = capture_stdout(() -> compile_traces(tmp; progress=false))

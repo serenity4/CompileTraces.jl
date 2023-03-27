@@ -22,6 +22,10 @@ end
 
 CompilationMetrics() = CompilationMetrics(0, 0, 0, 0)
 
+function Base.show(io::IO, metrics::CompilationMetrics)
+  print(io, CompilationMetrics, '(', "total: ", metrics.total, ", succeded: ", metrics.succeeded, ", failed: ", metrics.failed, ", skipped: ", metrics.skipped, ')')
+end
+
 """
     compile_traces(trace_files::AbstractString...; verbose=true, progress=true, warn=true)
     compile_traces(trace_files::AbstractVector{<:AbstractString}; verbose=true, progress=true, warn=true)
