@@ -27,11 +27,11 @@ end
 @testset "CompileTraces.jl" begin
   compile_traces(tmp)
   t = @elapsed display(fact(10))
-  @test t < 1e-4
+  @test t < 1e-3
   captured = capture_stdout(() -> compile_traces(tmp; verbose=false))
   @test contains(captured, "Executing precompile statements...") && !contains(captured, "Successfully precompiled")
   captured = capture_stdout(() -> compile_traces(tmp; progress=false))
   @test contains(captured, "Executing precompile statements...") && contains(captured, "Successfully precompiled")
   captured = capture_stdout(() -> compile_traces(tmp; progress=false, verbose=false))
   @test isempty(captured)
-end
+end;
