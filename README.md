@@ -36,7 +36,7 @@ Then, in a new session, use this file along with any potential module dependenci
 
 ```julia
 using CompileTraces
-using Test, LinearAlgebra # required for precompile statements to work
+using Test, LinearAlgebra # required for precompile statements to succeed
 
 compile_traces("/tmp/compiled.jl")
 ```
