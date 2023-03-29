@@ -5,7 +5,12 @@
 
 Compile traces recorded in a trace file with a uniquely provided function, `compile_traces`.
 
-This function has been extracted from internals of [PackageCompiler.jl](https://github.com/JuliaLang/PackageCompiler.jl) for the most part. The package is intended to be as lightweight as possible.
+This function has been extracted from internals of [PackageCompiler.jl](https://github.com/JuliaLang/PackageCompiler.jl) for the most part. The package is intended to be as lightweight as possible:
+
+```julia
+julia> @time_imports using CompileTraces
+      0.2 ms  CompileTraces
+```
 
 ## Basic usage
 
