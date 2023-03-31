@@ -1,7 +1,9 @@
 # CompileTraces
 
 [![Build Status](https://github.com/serenity4/CompileTraces.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/serenity4/CompileTraces.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![pkgeval](https://juliahub.com/docs/CompileTraces/pkgeval.svg)](https://juliahub.com/ui/Packages/CompileTraces/FKKWd)
 [![Coverage](https://codecov.io/gh/serenity4/CompileTraces.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/serenity4/CompileTraces.jl)
+[![deps](https://juliahub.com/docs/CompileTraces/deps.svg)](https://juliahub.com/ui/Packages/CompileTraces/FKKWd?t=2)
 
 Compile traces recorded in a trace file with a uniquely provided function, `compile_traces`.
 
