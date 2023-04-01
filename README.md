@@ -68,6 +68,8 @@ using CompileTraces: compile_traces
 # executed during package precompilation, unless you want some debug
 # information for use during local development only.
 @compile_traces joinpath(@__DIR__, "precompile_directives.jl") inline = true verbose = false
+
+end # module
 ```
 
 ## Use cases
