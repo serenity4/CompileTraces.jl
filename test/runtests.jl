@@ -67,6 +67,7 @@ end
   end
 
   @testset "Output & logging" begin
+    @test_logs compile_traces(@__MODULE__, trace_file("with_deps"); warn = true)
     captured = capture_stdout(() -> compile_traces(Module(), tmp; verbose=false))
     @test isempty(captured)
     captured = capture_stdout(() -> compile_traces(Module(), tmp; progress=false))

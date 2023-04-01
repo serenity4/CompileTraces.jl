@@ -114,7 +114,7 @@ function execute_precompile_directives!(metrics, mod, directives, verbose, progr
     finally
       isnothing(succeeded) ? (metrics.skipped += 1) : succeeded === true ? (metrics.succeeded += 1) : (metrics.failed += 1)
       progress && print("\rExecuting precompile statements... $(metrics.succeeded)/$n" * sprint(show_current_status, metrics; context = :color => true))
-      if warn
+      if succeeded === false && warn
         println()
         @warn "failed to execute precompile($(join(directive.args, ", ")))" * (succeeded === false ? '\n' * sprint(showerror, exc) : "")
       end
