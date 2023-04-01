@@ -1,7 +1,7 @@
 name = "CompileTraces"
 uuid = "92d184ee-bd0d-43d0-b768-a20943f3d1e3"
 authors = ["Cédric BELMANT"]
-version = "1.1.0"
+version = "1.1.1"
 
 [compat]
 julia = "1.6"
