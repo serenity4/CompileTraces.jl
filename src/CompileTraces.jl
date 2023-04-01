@@ -129,11 +129,7 @@ function execute_precompile_directive!(metrics, signature, verbose, progress, wa
   metrics.succeeded += 1
   progress || return
   print("\rExecuting precompile statements... $(metrics.succeeded)/$n")
-  if !iszero(metrics.failed)
-    print(" (failed: ")
-    printstyled(metrics.failed; bold=true, color=:red)
-    print(')')
-  end
+  show_current_status(metrics)
 end
 
 function show_compilation_results(metrics, timed)
@@ -141,6 +137,11 @@ function show_compilation_results(metrics, timed)
   print("Successfully executed ")
   printstyled(metrics.succeeded; bold=true, color=:green)
   print(" precompile statements")
+  show_current_status(metrics)
+  println(" in ", trunc(timed.time, digits = 2), " seconds")
+end
+
+function show_current_status(metrics)
   (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(" (")
   if !iszero(metrics.failed)
     printstyled(metrics.failed; bold=true, color=:red)
@@ -152,7 +153,6 @@ function show_compilation_results(metrics, timed)
     print(" skipped")
   end
   (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(")")
-  println(" in ", trunc(timed.time, digits = 2), " seconds")
 end
 
 function execute_precompile_statements!(metrics, statements, verbose, progress, warn, mod, inline)
