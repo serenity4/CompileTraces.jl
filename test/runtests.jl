@@ -76,6 +76,12 @@ end
     @test metrics.succeeded == 1
     @test metrics.failed == 2
     @test_logs compile_traces(Module(), trace_file("error"))
+    withenv("JULIA_COMPILE_TRACES_WARN" => "SomeModule,Main") do
+      @test_logs (:warn, "failed to execute precompile(Tuple{typeof(Base.doesnotexist), Int64})\nUndefVarError: $varname not defined") match_mode=:any compile_traces(@__MODULE__, trace_file("error"), warn = false)
+    end
+    withenv("JULIA_COMPILE_TRACES_WARN" => "SomeModule") do
+      @test_logs compile_traces(@__MODULE__, trace_file("error"), warn = false)
+    end
   end
 
   @testset "Macro interface" begin
