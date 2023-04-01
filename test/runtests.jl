@@ -33,7 +33,7 @@ end
     metrics = CompilationMetrics(1, 4, 2, 7)
     @test isa(repr(metrics), String)
     captured = capture_stdout(() -> CompileTraces.show_compilation_results(metrics, @timed sleep(0.2)), color = true)
-    @test captured == "\nSuccessfully executed \e[32m\e[1m1\e[22m\e[39m precompile statements (\e[31m\e[1m4\e[22m\e[39m failed, \e[33m\e[1m2\e[22m\e[39m skipped) in 0.2 seconds\n"
+    @test contains(captured, "\nSuccessfully executed \e[32m\e[1m1\e[22m\e[39m precompile statements (\e[31m\e[1m4\e[22m\e[39m failed, \e[33m\e[1m2\e[22m\e[39m skipped) in 0.2") && endswith(captured, " seconds\n")
   end
 
   @testset "Compilation of traces generated via --trace-file=<file>" begin
