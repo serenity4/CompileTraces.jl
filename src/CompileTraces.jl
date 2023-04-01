@@ -128,8 +128,7 @@ function execute_precompile_directive!(metrics, signature, verbose, progress, wa
   precompile(signature...)
   metrics.succeeded += 1
   progress || return
-  print("\rExecuting precompile statements... $(metrics.succeeded)/$n")
-  show_current_status(metrics)
+  print("\rExecuting precompile statements... $(metrics.succeeded)/$n" * sprint(show_current_status, metrics; context = :color => true))
 end
 
 function show_compilation_results(metrics, timed)
@@ -137,22 +136,22 @@ function show_compilation_results(metrics, timed)
   print("Successfully executed ")
   printstyled(metrics.succeeded; bold=true, color=:green)
   print(" precompile statements")
-  show_current_status(metrics)
+  show_current_status(stdout, metrics)
   println(" in ", trunc(timed.time, digits = 2), " seconds")
 end
 
-function show_current_status(metrics)
-  (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(" (")
+function show_current_status(io, metrics)
+  (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(io, " (")
   if !iszero(metrics.failed)
-    printstyled(metrics.failed; bold=true, color=:red)
-    print(" failed")
+    printstyled(io, metrics.failed; bold=true, color=:red)
+    print(io, " failed")
   end
   if !iszero(metrics.skipped)
-    !iszero(metrics.failed) && print(", ")
-    printstyled(metrics.skipped; bold = true, color=:yellow)
-    print(" skipped")
+    !iszero(metrics.failed) && print(io, ", ")
+    printstyled(io, metrics.skipped; bold = true, color=:yellow)
+    print(io, " skipped")
   end
-  (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(")")
+  (!iszero(metrics.failed) || !iszero(metrics.skipped)) && print(io, ")")
 end
 
 function execute_precompile_statements!(metrics, statements, verbose, progress, warn, mod, inline)
