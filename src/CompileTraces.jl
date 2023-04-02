@@ -129,6 +129,7 @@ function execute_precompile_directive(signature)
   # XXX: precompile doesn't currently handle overloaded nospecialize arguments very well.
   # See https://github.com/JuliaLang/julia/issues/39902
   ms = length(signature) == 1 ? Base._methods_by_ftype(signature[1], 1, Base.get_world_counter()) : Base.methods(signature...)
+  isnothing(ms) && return
   !isa(ms, Vector) && return
 
   precompile(signature...)
