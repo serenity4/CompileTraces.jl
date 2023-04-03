@@ -53,9 +53,6 @@ If used during precompilation, the first argument to `compile_traces` *must be t
 
 If trace files were obtained using `SnoopCompile.parcel` and `SnoopCompile.write`, they must be evaluated in scope of the intended package. For a trace file written at `MyPackage/src/precompile_statements.jl` for a given package `MyPackage`, use the option `inline = true` to execute the precompile statements in the intended scope:
 
-!!! note
-    The term "precompile" in "precompile statements" is not related to "precompilation" as in "module precompilation". `Base.precompile(signature)` is a way to trigger compilation for a given method signature early without executing it, hence the prefix.
-
 ```julia
 module MyPackage
 
@@ -67,10 +64,14 @@ using CompileTraces: compile_traces
 # In addition of `inline = true`, disable all output as this will be
 # executed during package precompilation, unless you want some debug
 # information for use during local development only.
+# WARNING: only use `inline = true` is the traces come from `SnoopCompile.write`!
+# For general use, `verbose = false` will be the only option you need for use in precompilation.
 @compile_traces joinpath(@__DIR__, "precompile_directives.jl") inline = true verbose = false
 
 end # module
 ```
+
+Note that the term "precompile" in "precompile statements" is not related to "precompilation" as in "module precompilation". `Base.precompile(signature)` is a way to trigger compilation for a given method signature early without executing it, hence the prefix.
 
 ## Use cases
 
