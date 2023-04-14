@@ -105,8 +105,8 @@ end
 
 function execute_precompile_directives!(metrics, mod, directives, verbose, progress, warn, n)
   verbose && print("Executing precompile statements...")
+  local exc::Exception, succeeded::Union{Nothing,Bool}
   timed = @timed for directive in directives
-    local exc::Exception, succeeded::Union{Nothing,Bool}
     try
       signature = Core.eval(mod, directive)
       succeeded = execute_precompile_directive(signature)
@@ -172,6 +172,7 @@ function execute_precompile_statements!(metrics, statements, verbose, progress, 
   n = length(statements)
   verbose |= has_env_option(mod, "JULIA_COMPILE_TRACES_VERBOSE")
   warn |= has_env_option(mod, "JULIA_COMPILE_TRACES_WARN")
+  progress &= verbose
   directives = precompile_directives(statements)
   metrics.skipped += length(statements) - length(directives)
 
@@ -195,7 +196,7 @@ end
 function compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=true, progress=true, warn=false, inline=false)
   metrics = CompilationMetrics()
   statements = foldl((sts, file) -> append!(sts, eachline(file)), trace_files; init=String[])
-  execute_precompile_statements!(metrics, statements, verbose, progress & verbose, warn, mod, inline)
+  execute_precompile_statements!(metrics, statements, verbose, progress, warn, mod, inline)
   metrics
 end
 
