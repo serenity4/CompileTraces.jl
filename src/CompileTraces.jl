@@ -76,7 +76,7 @@ function setup_staging_area(mod::Module)
         str = sprint(showerror, e)
         # Skip redefinitions of modules corresponding to package extensions.
         # TODO: Investigate what is going on.
-        contains(str, "invalid redefinition of constant anonymous.") || rethrow()
+        contains(str, "invalid redefinition of constant") || rethrow()
       end
     end
   end
