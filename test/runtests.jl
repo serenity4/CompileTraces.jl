@@ -4,7 +4,7 @@ using Test: Fail
 
 trace_file(name) = joinpath(@__DIR__, "traces", name * ".jl")
 
-tmp = tempname()
+tmp = trace_file("fact")
 
 function fact(n::Int)
   n >= 0 || error("n must be non-negative")
@@ -102,3 +102,5 @@ end
     @test isempty(captured)
   end
 end;
+
+isfile(tmp) && rm(tmp)
