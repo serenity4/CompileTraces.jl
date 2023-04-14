@@ -12,7 +12,7 @@ function fact(n::Int)
   n * fact(n - 1)
 end
 
-run(`julia --trace-compile=$tmp -e 'function fact(n::Int)
+run(`julia --trace-compile=$tmp --startup-file=no -e 'function fact(n::Int)
         n >= 0 || error("n must be non-negative")
         n == 0 && return 1
         n * fact(n-1)
