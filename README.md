@@ -62,13 +62,9 @@ module MyPackage
 # ...
 
 # Compile traces for precompilation.
-using CompileTraces: compile_traces
-# In addition of `inline = true`, disable all output as this will be
-# executed during package precompilation, unless you want some debug
-# information for use during local development only.
-# WARNING: only use `inline = true` is the traces come from `SnoopCompile.write`!
-# For general use, `verbose = false` will be the only option you need for use in precompilation.
-@compile_traces joinpath(@__DIR__, "precompile_directives.jl") inline = true verbose = false
+using CompileTraces
+# Note: only use `inline = true` if the traces come from `SnoopCompile.write`.
+@compile_traces "precompile_directives.jl" inline = true
 
 end # module
 ```
