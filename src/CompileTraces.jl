@@ -245,11 +245,11 @@ function generate_precompilation_traces(package::AbstractString = pwd(); output 
     preference_value = load_preference(uuid, "compile_traces", nothing)
     localpreferences_existed = isfile(joinpath(package, "LocalPreferences.toml")) || isfile(joinpath(package, "JuliaLocalPreferences.toml"))
     set_preferences!(uuid, "compile_traces" => false; force = true)
-    @info "Running tests with --trace-compile=$tmp"
     try
-      run(`$julia --project=$package --startup-file=no -e 'using Pkg; Pkg.test(julia_args = ["--trace-compile", ARGS[2]])' -- --tmp $tmp`)
-      @info "Writing precompile statements to $output"
+      @info "Running tests with --trace-compile=$tmp"
+      Pkg.test(julia_args = ["--trace-compile", tmp])
       traces = read(tmp, String)
+      @info "Writing precompile statements to $output"
       open(output, "w+") do io
         for line in split(traces, '\n')
           contains(line, basename(package)) && !contains(line, "Main") && println(io, line)
