@@ -238,7 +238,7 @@ function generate_precompilation_traces(package::AbstractString = pwd())
   dst = joinpath(package, "src", "precompilation_traces.jl")
   runtests = joinpath(package, "test", "runtests.jl")
   Pkg.activate(package) do
-    (; uuid) = Pkg.project()
+    uuid = Pkg.project().uuid
     preference_value = load_preference(uuid, "compile_traces", nothing)
     localpreferences_existed = isfile(joinpath(package, "LocalPreferences.toml")) || isfile(joinpath(package, "JuliaLocalPreferences.toml"))
     set_preferences!(uuid, "compile_traces" => false; force = true)
