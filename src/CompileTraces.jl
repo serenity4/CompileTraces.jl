@@ -207,7 +207,7 @@ end
 function compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=false, progress=true, warn=false, inline=false)
   trace_compilation_enabled(mod) || return @debug "Trace compilation is disabled for module $mod"
   metrics = CompilationMetrics()
-  statements = foldl((sts, file) -> append!(sts, eachline(file)), trace_files; init=String[])
+  statements = foldl((sts, file) -> append!(sts, eachline(@static Sys.iswindows() ? replace(file, '/' => '\\') : file)), trace_files; init=String[])
   execute_precompile_statements!(metrics, statements, verbose, progress, warn, mod, inline)
   metrics
 end
