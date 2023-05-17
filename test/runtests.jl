@@ -104,11 +104,11 @@ end
 
   @testset "Generating precompilation traces" begin
     if !haskey(ENV, "skip_test_generate_precompilation_traces")
-      output = tempname()
+      output = tempname("traces")
       withenv("skip_test_generate_precompilation_traces" => "") do
-        # redirect_stdio(stdout = devnull, stderr = devnull) do
+        redirect_stdio(stdout = devnull, stderr = devnull) do
           generate_precompilation_traces(pkgdir(CompileTraces); output = output)
-        # end
+        end
       end
       @test length(collect(eachline(output))) > 10
       @test !isfile(joinpath(pkgdir(CompileTraces), "LocalPreferences.toml"))
