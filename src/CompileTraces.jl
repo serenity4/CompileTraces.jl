@@ -45,7 +45,9 @@ end
     compile_traces(mod::Module, trace_files::AbstractString...; verbose=false, progress=true, warn=false, inline=false)
     compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=false, progress=true, warn=false, inline=false)
 
-Execute a set of precompile statements from a trace file, returning a `CompilationMetrics` result.
+Execute a set of precompile statements from one or more trace files, returning a `CompilationMetrics` result.
+
+Trace file paths will be roughly OS-normalized, substituting '/' with '\\' on Windows.
 
 `verbose = false` implies `progress = false`. Turn off `progress = false` when `\\r` is not well supported, i.e. in CI.
 
@@ -216,17 +218,19 @@ end
 Compile traces by calling [`compile_traces`](@ref) with `@__MODULE__` as first argument.
 See the documentation of [`compile_traces`](@ref) for more information.
 
+Non-absolute literal strings for trace file paths will be expanded relative to the directory of the source location.
+
 Keyword arguments can be parsed in any order in the form `name = value`.
 """
 macro compile_traces(args...)
-  fargs = Expr[]
+  fargs = []
   kwargs = Expr[]
   for arg in args
     if isexpr(arg, :(=))
       name, value = arg.args
       push!(kwargs, Expr(:kw, name, esc(value)))
     else
-      push!(fargs, esc(arg))
+      push!(fargs, isa(arg, AbstractString) && !isabspath(arg) ? joinpath(dirname(string(__source__.file)), arg) : esc(arg))
     end
   end
   :(compile_traces($__module__, $(fargs...); $(kwargs...)))
@@ -263,6 +267,6 @@ function generate_precompilation_traces(package::AbstractString = pwd())
   end
 end
 
-@compile_traces "src/precompilation_traces.jl"
+@compile_traces "precompilation_traces.jl"
 
 end
