@@ -49,6 +49,8 @@ For convenience, `compile_traces` also accepts a list of trace files as first ar
 
 If used during precompilation, the first argument to `compile_traces` *must be the current module*, as it is then forbidden to dynamically evaluate code in other modules. This will be automatically the case if you use the macro equivalent `@compile_traces`.
 
+Trace compilation may be disabled on a per-package basis by setting the preference `compile_traces` to `false`.
+
 ### Usage with SnoopCompile
 
 If trace files were obtained using `SnoopCompile.parcel` and `SnoopCompile.write`, they must be evaluated in scope of the intended package. For a trace file written at `MyPackage/src/precompile_statements.jl` for a given package `MyPackage`, use the option `inline = true` to execute the precompile statements in the intended scope:

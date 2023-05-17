@@ -2,7 +2,18 @@ module CompileTraces
 
 using .Meta: isexpr
 
-export @compile_traces, compile_traces, CompilationMetrics
+export @compile_traces, compile_traces, CompilationMetrics, generate_precompilation_traces
+
+using Preferences
+using Pkg
+
+function trace_compilation_enabled(mod::Module)
+  try
+      load_preference(mod, "compile_traces", true)::Bool
+  catch
+      true
+  end
+end
 
 """
 Object used to track various metrics related to compilation successes and failures for later introspection.
@@ -31,8 +42,8 @@ function Base.show(io::IO, metrics::CompilationMetrics)
 end
 
 """
-    compile_traces(mod::Module, trace_files::AbstractString...; verbose=true, progress=true, warn=false, inline=false)
-    compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=true, progress=true, warn=false, inline=false)
+    compile_traces(mod::Module, trace_files::AbstractString...; verbose=false, progress=true, warn=false, inline=false)
+    compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=false, progress=true, warn=false, inline=false)
 
 Execute a set of precompile statements from a trace file, returning a `CompilationMetrics` result.
 
@@ -63,7 +74,7 @@ contain `Main.`. Otherwise warnings will be raised, unless you really are compil
 """
 function compile_traces end
 
-compile_traces(mod::Module, trace_files::AbstractString...; verbose=true, progress=true, warn=false, inline=false) = compile_traces(mod, collect(trace_files); verbose, progress, warn, inline)
+compile_traces(mod::Module, trace_files::AbstractString...; verbose=false, progress=true, warn=false, inline=false) = compile_traces(mod, collect(trace_files); verbose, progress, warn, inline)
 
 # Credits to PackageCompiler.jl for the core precompilation code.
 
@@ -193,7 +204,8 @@ function execute_precompile_statements!(metrics, statements, verbose, progress, 
   end
 end
 
-function compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=true, progress=true, warn=false, inline=false)
+function compile_traces(mod::Module, trace_files::AbstractVector{<:AbstractString}; verbose=false, progress=true, warn=false, inline=false)
+  trace_compilation_enabled(mod) || return @debug "Trace compilation is disabled for module $mod"
   metrics = CompilationMetrics()
   statements = foldl((sts, file) -> append!(sts, eachline(file)), trace_files; init=String[])
   execute_precompile_statements!(metrics, statements, verbose, progress, warn, mod, inline)
@@ -219,5 +231,38 @@ macro compile_traces(args...)
   end
   :(compile_traces($__module__, $(fargs...); $(kwargs...)))
 end
+
+function generate_precompilation_traces(package::AbstractString = pwd())
+  julia = Base.julia_cmd()
+  tmp = tempname()
+  dst = joinpath(package, "src", "precompilation_traces.jl")
+  runtests = joinpath(package, "test", "runtests.jl")
+  Pkg.activate(package) do
+    (; uuid) = Pkg.project()
+    preference_value = load_preference(uuid, "compile_traces", nothing)
+    localpreferences_existed = isfile(joinpath(package, "LocalPreferences.toml")) || isfile(joinpath(package, "JuliaLocalPreferences.toml"))
+    set_preferences!(uuid, "compile_traces" => false; force = true)
+    @info "Running tests with --trace-compile=$tmp"
+    try
+      run(`$julia --project=$package --startup-file=no -e 'using Pkg; Pkg.test(julia_args = ["--trace-compile", ARGS[2]])' -- --tmp $tmp`)
+      @info "Writing precompile statements to $dst"
+      traces = read(tmp, String)
+      open(dst, "w+") do io
+        for line in split(traces, '\n')
+          contains(line, basename(package)) && !contains(line, "Main") && println(io, line)
+        end
+      end
+    finally
+      if localpreferences_existed
+        isnothing(preference_value) ? delete_preferences!(uuid, "compile_traces") : set_preferences!(uuid, "compile_traces" => preference_value; force = true)
+      else
+        rm(joinpath(package, "LocalPreferences.toml"); force = true)
+        rm(joinpath(package, "JuliaLocalPreferences.toml"); force = true)
+      end
+    end
+  end
+end
+
+@compile_traces "src/precompilation_traces.jl"
 
 end
