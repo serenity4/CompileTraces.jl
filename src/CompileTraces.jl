@@ -249,12 +249,11 @@ function generate_precompilation_traces(package::AbstractString = pwd(); output 
     try
       @info "Running tests with --trace-compile=$tmp"
       Pkg.test(julia_args = ["--trace-compile", tmp])
-      @show stat(tmp).size
       @info "Writing precompile statements to $output"
       rm(output; force = true)
       open(output, "w") do io
         for line in eachline(tmp)
-          @show(contains(line, proj.name)) && @show(!contains(line, "Main")) && @show println(io, line)
+          contains(line, proj.name) && !contains(line, "Main") && println(io, line)
         end
       end
     finally

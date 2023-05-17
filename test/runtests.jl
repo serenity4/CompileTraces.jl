@@ -110,7 +110,6 @@ end
           generate_precompilation_traces(pkgdir(CompileTraces); output = output)
         end
       end
-      display(read(output, String))
       @test length(collect(eachline(output))) > 10
       @test !isfile(joinpath(pkgdir(CompileTraces), "LocalPreferences.toml"))
     end
