@@ -1,7 +1,7 @@
 name = "CompileTraces"
 uuid = "92d184ee-bd0d-43d0-b768-a20943f3d1e3"
 authors = ["Cédric BELMANT"]
-version = "1.2.1"
+version = "1.2.2"
 
 [deps]
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
