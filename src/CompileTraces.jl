@@ -236,10 +236,9 @@ macro compile_traces(args...)
   :(compile_traces($__module__, $(fargs...); $(kwargs...)))
 end
 
-function generate_precompilation_traces(package::AbstractString = pwd())
+function generate_precompilation_traces(package::AbstractString = pwd(); output = joinpath(package, "src", "precompilation_traces.jl"))
   julia = Base.julia_cmd()
   tmp = tempname()
-  dst = joinpath(package, "src", "precompilation_traces.jl")
   runtests = joinpath(package, "test", "runtests.jl")
   Pkg.activate(package) do
     uuid = Pkg.project().uuid
@@ -249,9 +248,9 @@ function generate_precompilation_traces(package::AbstractString = pwd())
     @info "Running tests with --trace-compile=$tmp"
     try
       run(`$julia --project=$package --startup-file=no -e 'using Pkg; Pkg.test(julia_args = ["--trace-compile", ARGS[2]])' -- --tmp $tmp`)
-      @info "Writing precompile statements to $dst"
+      @info "Writing precompile statements to $output"
       traces = read(tmp, String)
-      open(dst, "w+") do io
+      open(output, "w+") do io
         for line in split(traces, '\n')
           contains(line, basename(package)) && !contains(line, "Main") && println(io, line)
         end
