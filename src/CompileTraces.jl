@@ -253,7 +253,15 @@ function generate_precompilation_traces(package::AbstractString = pwd(); output 
       rm(output; force = true)
       open(output, "w") do io
         for line in eachline(tmp)
-          contains(line, proj.name) && !contains(line, "Main") && println(io, line)
+          contains(line, proj.name) || continue
+          !contains(line, "Main") || continue
+          # Only include statements which can be parsed.
+          try
+            ex = Meta.parse(line)
+            !Meta.isexpr(ex, :incomplete) || continue
+            println(io, line)
+          catch
+          end
         end
       end
     finally
