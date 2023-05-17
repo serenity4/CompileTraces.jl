@@ -11,7 +11,7 @@ The core functionality was in part extracted from [PackageCompiler.jl](https://g
 
 ```julia
 julia> @time_imports using CompileTraces
-      0.3 ms  CompileTraces
+      11.5 ms  CompileTraces
 ```
 
 ## Basic usage
