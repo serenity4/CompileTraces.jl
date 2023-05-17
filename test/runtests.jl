@@ -47,28 +47,28 @@ end
   @testset "Setting up of staging areas" begin
     # We need to compile something that comes from `Test`.
     # `Test` is already in scope here, so `inline = true` will work.
-    metrics = compile_traces(@__MODULE__, trace_file("with_deps"); inline = true, verbose = false)
+    metrics = compile_traces(@__MODULE__, trace_file("with_deps"); inline = true)
     @test metrics.succeeded == 1
     # However, it won't on a new module.
-    metrics = compile_traces(Module(), trace_file("with_deps"); inline = true, verbose = false)
+    metrics = compile_traces(Module(), trace_file("with_deps"); inline = true)
     @test metrics.failed == 1
     # Unless we setup the staging module with `inline = false`.
-    metrics = compile_traces(Module(), trace_file("with_deps"); inline = false, verbose = false)
+    metrics = compile_traces(Module(), trace_file("with_deps"); inline = false)
     @test metrics.succeeded == 1
   end
 
   @testset "Behavior of `inline` parameter" begin
     # Test that we can compile traces inline when everything is in scope, which correspond to SnoopCompile's traces.
-    metrics = compile_traces(@__MODULE__, trace_file("inline"); verbose = false, inline = true)
+    metrics = compile_traces(@__MODULE__, trace_file("inline"), inline = true)
     @test metrics.succeeded == 1
     # However, such traces need to be run in the relevant scope, so test that it fails on a new module which therefore has the wrong scope.
-    metrics = compile_traces(Module(), trace_file("inline"); inline = true, verbose = false)
+    metrics = compile_traces(Module(), trace_file("inline"); inline = true)
     @test metrics.failed == 1
   end
 
   @testset "Output & logging" begin
     @test_logs compile_traces(@__MODULE__, trace_file("with_deps"); warn = true)
-    captured = capture_stdout(() -> compile_traces(Module(), tmp; verbose=false))
+    captured = capture_stdout(() -> compile_traces(Module(), tmp))
     @test isempty(captured)
     captured = capture_stdout(() -> compile_traces(Module(), tmp; verbose = true, progress=false))
     @test contains(captured, "Executing precompile statements...") && contains(captured, "Successfully executed")
@@ -95,8 +95,8 @@ end
     res3 = @compile_traces inline = true trace_file("inline")
 
     captured = capture_stdout() do
-      res1 = compile_traces(@__MODULE__, trace_file("inline"); verbose = false)
-      res2 = @compile_traces trace_file("inline") verbose = false
+      res1 = compile_traces(@__MODULE__, trace_file("inline"))
+      res2 = @compile_traces trace_file("inline")
       @test res1 == res2
     end
     @test isempty(captured)
