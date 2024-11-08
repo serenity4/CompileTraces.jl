@@ -198,7 +198,12 @@ function execute_precompile_statements!(metrics, statements, verbose, progress, 
       module $(gensym("CompileStagingArea"))
 
       $setup_staging_area(@__MODULE__)
-      $ex
+      # Define a function to make sure there is a root
+      # tracing back to the defining module for precompilation.
+      function precompile_root()
+        $ex
+      end
+      precompile_root()
 
     end # module
     end

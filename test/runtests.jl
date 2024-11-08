@@ -73,12 +73,12 @@ end
     captured = capture_stdout(() -> compile_traces(Module(), tmp; verbose = true, progress=false))
     @test contains(captured, "Executing precompile statements...") && contains(captured, "Successfully executed")
     varname = VERSION ≥ v"1.9" ? "`doesnotexist`" : "doesnotexist"
-    metrics = @test_logs (:warn, "failed to execute precompile(Tuple{typeof(Base.doesnotexist), Int64})\nUndefVarError: $varname not defined") match_mode=:any compile_traces(@__MODULE__, trace_file("error"); warn = true)
+    metrics = @test_logs (:warn, r"failed to execute precompile.*doesnotexist.*") match_mode=:any compile_traces(@__MODULE__, trace_file("error"); warn = true)
     @test metrics.succeeded == 1
     @test metrics.failed == 2
     @test_logs compile_traces(Module(), trace_file("error"))
     withenv("JULIA_COMPILE_TRACES_WARN" => "SomeModule,Main") do
-      @test_logs (:warn, "failed to execute precompile(Tuple{typeof(Base.doesnotexist), Int64})\nUndefVarError: $varname not defined") match_mode=:any compile_traces(@__MODULE__, trace_file("error"), warn = false)
+      @test_logs (:warn, r"failed to execute precompile.*doesnotexist.*") match_mode=:any compile_traces(@__MODULE__, trace_file("error"), warn = false)
     end
     withenv("JULIA_COMPILE_TRACES_WARN" => "SomeModule") do
       @test_logs compile_traces(@__MODULE__, trace_file("error"), warn = false)
