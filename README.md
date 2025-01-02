@@ -14,6 +14,17 @@ julia> @time_imports using CompileTraces
       11.5 ms  CompileTraces
 ```
 
+## Motivation
+
+If you have a trace file containing precompile statements, e.g. `traces.jl`, straight up including it with `include("traces.jl")` will most likely fail on nontrivial cases.
+
+To list a few of the reasons:
+- The traces [may not be executable](https://github.com/JuliaLang/julia/issues/28808), notably due to possible syntax errors. These cases are few, and some of them may have been fixed in recent Julia versions, but the point is, traces cannot be assumed to be valid Julia code.
+- Precompile statements (unless emitted by SnoopCompile.parcel) qualify most of their symbols with their parent module, see e.g. `precompile(Tuple{typeof(Base.length), Array{Pkg.Types.PackageSpec, 1}})`. If Pkg is not in scope when including the trace file in this example, execution will fail.
+- [Miscellaneous corner cases](https://github.com/JuliaLang/julia/blob/2c9e051c460dd9700e6814c8e49cc1f119ed8b41/contrib/generate_precompile.jl#L375-L393) that have been there for a while and that require special-casing are furthermore accounted for.
+
+This package makes sure to correctly execute all the precompile directives contained in trace files, will all required modules in scope if already loaded, and the necessary amount of error handling for it to go well.
+
 ## Basic usage
 
 Generate compilation traces by executing code in a Julia process started with the `--trace-compile` option. For example, you can run a script which triggers compilation paths that you would like to generate traces for.
